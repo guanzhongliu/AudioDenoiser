@@ -16,8 +16,13 @@ class MixSourceDataset(SourceDataset):
     def __getitem__(self, index) -> [tuple, tuple]:
         # randomly choose a dataset
         dataset = self.datasets[index % len(self.datasets)]
-        
-        return dataset.get_random_sample()
+
+        sample, noise = None, None
+        while sample is None or noise is None:
+            (sample, sample_rate), (noise, noise_rate) = dataset.get_random_sample()
+            if sample is None or noise is None:
+                print("Got a empty sample!")
+        return (sample, sample_rate), (noise, noise_rate)
 
     def get_random_sample(self):
         return self.__getitem__(random.randint(0, len(self)))

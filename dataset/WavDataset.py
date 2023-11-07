@@ -1,16 +1,15 @@
 import torch
 from torch.utils.data import Dataset
-import librosa
 import soundfile as sf
 
 # Basic dataset class for reading and processing wav files
 class WavDataset(Dataset):
     def __init__(self, config):
         self.samples = []
-        self.window_length = config.dataset.window_length
+        self.window_length = config.seg_len_s_train
 
     def read_wav(self, file_path, amplification_factor=1.0):
-        waveform, sample_rate = librosa.load(file_path)
+        waveform, sample_rate = sf.read(file_path)
         return waveform * amplification_factor, sample_rate
     
     def random_sample_from_wav(self, waveform, sample_rate):
@@ -39,7 +38,6 @@ class WavDataset(Dataset):
         sample, sample_rate = self.samples[index]
 
         return self.random_sample_from_wav(sample, sample_rate)
-
     
     def get_random_sample(self):
         index = torch.randint(len(self.samples), (1,)).item()

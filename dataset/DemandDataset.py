@@ -7,12 +7,12 @@ from tqdm import tqdm
 
 class DemandDataset(WavDataset):
     def __init__(self, config):
-        self.root_dir = config.dataset.demand_dir
+        self.root_dir = config.demand_dir
         self.structure_data = self.read_all_noise()
         self.samples = []
         for noise in self.structure_data:
             self.samples.extend(self.structure_data[noise])
-        self.window_length = config.dataset.window_length
+        self.window_length = config.seg_len_s_train
     
     def read_all_noise(self):
         data = {}
@@ -26,7 +26,7 @@ class DemandDataset(WavDataset):
             for file in noise_files:
                 if not file.endswith('.wav'):
                     continue
-                wav_data = self.read_wav(os.path.join(noise_dir, file), amplification_factor=3.0)
+                wav_data = self.read_wav(os.path.join(noise_dir, file), amplification_factor=4.0)
                 data[noise].append(wav_data)
         return data
 

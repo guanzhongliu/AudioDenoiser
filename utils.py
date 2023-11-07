@@ -5,7 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-@hydra.main(config_name="config")
+@hydra.main(config_path="conf/conf.yaml")
 def create_dataset(cfg: DictConfig):
     # logger.info current path
     demandDataset = DemandDataset(config=cfg)
@@ -23,14 +23,16 @@ def create_dataset(cfg: DictConfig):
     logger.info("length of MixSourceDataset: %s", len(mix_dataset))
 
     # Get a random sample from the mix dataset
-    (sample, sample_rate), (noise_sample, noise_sample_rate) = mix_dataset.get_random_sample()
-    logger.info("sample: %s", sample)
-    logger.info("sample_rate: %s", sample_rate)
-    logger.info("noise_sample: %s", noise_sample)
-    logger.info("noise_sample_rate: %s", noise_sample_rate)
+    # for i in range(5):
+    #     (sample, sample_rate), (noise_sample, noise_sample_rate) = mix_dataset.get_random_sample()
+    #     logger.info("sample: %s", sample)
+    #     logger.info("sample_rate: %s", sample_rate)
+    #     logger.info("noise_sample: %s", noise_sample)
+    #     logger.info("noise_sample_rate: %s", noise_sample_rate)
 
-    mix_dataset.write_wav('sample_combine.wav', mix_dataset.mix_samples(sample, sample_rate, noise_sample, noise_sample_rate), sample_rate)
-    mix_dataset.write_wav('sample.wav', sample, sample_rate)
+    #     mix_dataset.write_wav(f'sample_combine_{i}.wav', mix_dataset.mix_samples(sample, sample_rate, noise_sample, noise_sample_rate), sample_rate)
+    #     mix_dataset.write_wav(f'sample_{i}.wav', sample, sample_rate)
+    #     mix_dataset.write_wav(f'sample_noise_{i}.wav', noise_sample, noise_sample_rate)
 
     return mix_dataset
 
