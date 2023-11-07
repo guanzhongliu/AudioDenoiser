@@ -5,10 +5,11 @@ import random
 
 
 class MaestroDataset(SourceDataset):
-    def __init__(self, root_dir='../maestro-v3.0.0', noise_dataset=None):
-        self.root_dir = root_dir
+    def __init__(self, config, noise_dataset=None):
+        self.root_dir = config.dataset.maestro_dir
         self.samples = self.read_all_file()
         self.noise_dataset = noise_dataset
+        self.window_length = config.dataset.window_length
 
     
     def read_all_file(self):

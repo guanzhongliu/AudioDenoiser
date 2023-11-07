@@ -6,12 +6,13 @@ from tqdm import tqdm
 
 
 class DemandDataset(WavDataset):
-    def __init__(self, root_dir='../DEMAND'):
-        self.root_dir = root_dir
+    def __init__(self, config):
+        self.root_dir = config.dataset.demand_dir
         self.structure_data = self.read_all_noise()
         self.samples = []
         for noise in self.structure_data:
             self.samples.extend(self.structure_data[noise])
+        self.window_length = config.dataset.window_length
     
     def read_all_noise(self):
         data = {}
