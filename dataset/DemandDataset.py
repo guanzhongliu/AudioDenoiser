@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 class DemandDataset(WavDataset):
     def __init__(self):
-        self.root_dir = "../DEMAND"
+        self.root_dir = "../data/DEMAND"
         self.structure_data = self.read_all_noise()
         self.samples = []
         for noise in self.structure_data:

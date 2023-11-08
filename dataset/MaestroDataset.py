@@ -6,7 +6,7 @@ import random
 
 class MaestroDataset(SourceDataset):
     def __init__(self, noise_dataset=None):
-        self.root_dir = "../maestro-v3.0.0"
+        self.root_dir = "../data/maestro-v3.0.0"
         self.samples = self.read_all_file()
         self.noise_dataset = noise_dataset
     

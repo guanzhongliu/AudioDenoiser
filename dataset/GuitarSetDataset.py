@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 class GuitarSetDataset(SourceDataset):
     def __init__(self, noise_dataset=None):
-        self.root_dir = "../GuitarSet-audio_mono-mic"
+        self.root_dir = "../data/GuitarSet-audio_mono-mic"
         self.samples = self.read_all_file()
         self.noise_dataset = noise_dataset
 
