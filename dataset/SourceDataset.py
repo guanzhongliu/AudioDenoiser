@@ -6,7 +6,7 @@ class SourceDataset(WavDataset):
     def __init__(self, config, noise_dataset=None):
         super().__init__()
         self.noise_dataset = noise_dataset
-        self.window_length = config.seg_len_s_train
+        self.window_length = config.conf.seg_len_s_train
     
     def __len__(self):
         return len(self.samples)
@@ -27,7 +27,7 @@ class SourceDataset(WavDataset):
             noise_sample = librosa.resample(noise_sample, noise_sample_rate, sample_rate)
 
         # calculate the RMS of the sample and noise 
-        rms_sample = np.sqrt(np.mean(sample**2, axis=0))
+        rms_sample = np.sqrt(np.mean(sample**2))
         rms_noise = np.sqrt(np.mean(noise_sample**2))
 
         # calculate the desired RMS of the noise
@@ -36,14 +36,8 @@ class SourceDataset(WavDataset):
         # calculate the gain factor to apply to the noise
         gain_factor = desired_noise_rms / rms_noise
 
-        if sample.ndim == 2 and sample.shape[1] == 2:
-        # if the sample is stereo, duplicate the noise across both channels
-            noise_sample_adjusted = np.tile(noise_sample, (2, 1)).T
-        else:
-            noise_sample_adjusted = noise_sample
-
         # adjust the noise to match the desired RMS
-        noise_sample_adjusted = noise_sample_adjusted * gain_factor
+        noise_sample_adjusted = noise_sample * gain_factor
 
         # combine the sample and noise
         combined_sample = sample + noise_sample_adjusted

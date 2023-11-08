@@ -7,12 +7,13 @@ from tqdm import tqdm
 
 class DemandDataset(WavDataset):
     def __init__(self, config):
-        self.root_dir = config.demand_dir
+        
+        self.root_dir = config.conf.dset.demand_dir
         self.structure_data = self.read_all_noise()
         self.samples = []
         for noise in self.structure_data:
             self.samples.extend(self.structure_data[noise])
-        self.window_length = config.seg_len_s_train
+        self.window_length = config.conf.seg_len_s_train
     
     def read_all_noise(self):
         data = {}

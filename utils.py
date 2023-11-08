@@ -2,10 +2,12 @@ from dataset import *
 import hydra
 from omegaconf import DictConfig
 import logging
+import os
+from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
-@hydra.main(config_path="conf/conf.yaml")
+@hydra.main(config_name="conf/conf.yaml")
 def create_dataset(cfg: DictConfig):
     # logger.info current path
     demandDataset = DemandDataset(config=cfg)
@@ -22,21 +24,23 @@ def create_dataset(cfg: DictConfig):
     logger.info("length of MaestroDataset: %s", len(maestroDataset))
     logger.info("length of MixSourceDataset: %s", len(mix_dataset))
 
-    # Get a random sample from the mix dataset
-    # for i in range(5):
-    #     (sample, sample_rate), (noise_sample, noise_sample_rate) = mix_dataset.get_random_sample()
-    #     logger.info("sample: %s", sample)
-    #     logger.info("sample_rate: %s", sample_rate)
-    #     logger.info("noise_sample: %s", noise_sample)
-    #     logger.info("noise_sample_rate: %s", noise_sample_rate)
-
-    #     mix_dataset.write_wav(f'sample_combine_{i}.wav', mix_dataset.mix_samples(sample, sample_rate, noise_sample, noise_sample_rate), sample_rate)
-    #     mix_dataset.write_wav(f'sample_{i}.wav', sample, sample_rate)
-    #     mix_dataset.write_wav(f'sample_noise_{i}.wav', noise_sample, noise_sample_rate)
-
     return mix_dataset
 
+def generate_samples(dir_path, num, dataset):
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path, exist_ok=True)
+    # create clean dir and noisy dir
+    clean_dir = os.path.join(dir_path, "clean")
+    noisy_dir = os.path.join(dir_path, "noisy")
+    for i in tqdm(range(num), desc="Generating samples in " + dir_path):
+        (sample, sample_rate), (noise_sample, noise_sample_rate) = dataset.get_random_sample()
+        dataset.write_wav(os.path.join(clean_dir, f'sample_{i}.wav'), sample, sample_rate)
+        dataset.write_wav(os.path.join(noisy_dir, f'sample_{i}.wav'), dataset.mix_samples(sample, sample_rate, noise_sample, noise_sample_rate), sample_rate)
+
+
+
 if __name__ == "__main__":
-    create_dataset()
+    dataset = create_dataset()
+    generate_samples("../../../data/train", 100, dataset=dataset)
 
 

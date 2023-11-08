@@ -1,4 +1,3 @@
-from torch.utils.data import Dataset
 from typing import List
 from dataset.SourceDataset import SourceDataset
 import random

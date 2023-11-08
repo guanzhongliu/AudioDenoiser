@@ -1,15 +1,19 @@
 import torch
 from torch.utils.data import Dataset
 import soundfile as sf
+import numpy as np
 
 # Basic dataset class for reading and processing wav files
 class WavDataset(Dataset):
     def __init__(self, config):
         self.samples = []
-        self.window_length = config.seg_len_s_train
+        self.window_length = config.conf.seg_len_s_train
 
     def read_wav(self, file_path, amplification_factor=1.0):
         waveform, sample_rate = sf.read(file_path)
+        # stereo to mono
+        if len(waveform.shape) > 1:
+            waveform = np.mean(waveform, axis=1)
         return waveform * amplification_factor, sample_rate
     
     def random_sample_from_wav(self, waveform, sample_rate):
