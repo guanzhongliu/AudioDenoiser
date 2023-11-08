@@ -4,11 +4,10 @@ from tqdm import tqdm
 
 
 class PhenicxDataset(SourceDataset):
-    def __init__(self, config, noise_dataset=None):
-        self.root_dir = config.conf.dset.phenicx_dir
+    def __init__(self, noise_dataset=None):
+        self.root_dir = "../PHENICX-Anechoic"
         self.samples = self.read_all_file()
         self.noise_dataset = noise_dataset
-        self.window_length = config.conf.seg_len_s_train
     
     def read_all_file(self):
         data = []

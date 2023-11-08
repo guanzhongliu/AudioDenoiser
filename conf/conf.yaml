@@ -1,4 +1,0 @@
-defaults:
-  - dset: dataset
-
-seg_len_s_train: 20 #length of the train (and val) segments in seconds

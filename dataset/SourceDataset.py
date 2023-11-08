@@ -3,10 +3,9 @@ import librosa
 import numpy as np
 
 class SourceDataset(WavDataset):
-    def __init__(self, config, noise_dataset=None):
+    def __init__(self, noise_dataset=None):
         super().__init__()
         self.noise_dataset = noise_dataset
-        self.window_length = config.conf.seg_len_s_train
     
     def __len__(self):
         return len(self.samples)

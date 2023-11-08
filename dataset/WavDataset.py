@@ -5,9 +5,8 @@ import numpy as np
 
 # Basic dataset class for reading and processing wav files
 class WavDataset(Dataset):
-    def __init__(self, config):
+    def __init__(self):
         self.samples = []
-        self.window_length = config.conf.seg_len_s_train
 
     def read_wav(self, file_path, amplification_factor=1.0):
         waveform, sample_rate = sf.read(file_path)
@@ -16,9 +15,9 @@ class WavDataset(Dataset):
             waveform = np.mean(waveform, axis=1)
         return waveform * amplification_factor, sample_rate
     
-    def random_sample_from_wav(self, waveform, sample_rate):
+    def random_sample_from_wav(self, waveform, sample_rate, window_length=20):
         # Calculate the number of samples in the window length
-        window_length_samples = self.window_length * sample_rate
+        window_length_samples = window_length * sample_rate
         # Make sure the waveform is long enough
         if len(waveform) < window_length_samples:
             return None, None
