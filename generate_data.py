@@ -39,9 +39,10 @@ def generate_samples(dir_path, num, dataset):
 
 
 if __name__ == "__main__":
-    args = argparse.ArgumentParser()
-    args.add_argument("--dir", type=str, default="train")
-    args.add_argument("--num", type=int, default=100)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dir", type=str, default="train")
+    parser.add_argument("--num", type=int, default=1000)
+    args = parser.parse_args()
 
     dataset = create_dataset()
     generate_samples('genData/{args.dir}', args.num, dataset)
