@@ -45,6 +45,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     dataset = create_dataset()
-    generate_samples('genData/{args.dir}', args.num, dataset)
+    generate_samples(f'genData/{args.dir}', args.num, dataset)
 
 
