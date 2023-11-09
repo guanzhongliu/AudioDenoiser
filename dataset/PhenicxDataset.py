@@ -20,6 +20,5 @@ class PhenicxDataset(SourceDataset):
             for f in noise_files:
                 if not f.endswith('.wav'):
                     continue
-                wav_data = self.read_wav(os.path.join(noise_dir, f), amplification_factor=1.0)
-                data.append(wav_data)
+                data.append(os.path.join(noise_dir, f))
         return data

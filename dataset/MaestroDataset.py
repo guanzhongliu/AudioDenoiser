@@ -20,9 +20,7 @@ class MaestroDataset(SourceDataset):
             noise_files = os.listdir(noise_dir)
             noise_files = [f for f in noise_files if f.endswith('.wav')]
             random.shuffle(noise_files)
-            noise_files = noise_files[:10]
             for f in noise_files:
-                wav_data = self.read_wav(os.path.join(noise_dir, f), amplification_factor=1.0)
-                data.append(wav_data)
+                data.append(os.path.join(noise_dir, f))
         return data
 

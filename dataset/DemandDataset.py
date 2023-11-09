@@ -1,7 +1,5 @@
-import torch
 from dataset.WavDataset import WavDataset
 import os
-import librosa
 from tqdm import tqdm
 
 
@@ -25,8 +23,7 @@ class DemandDataset(WavDataset):
             for file in noise_files:
                 if not file.endswith('.wav'):
                     continue
-                wav_data = self.read_wav(os.path.join(noise_dir, file), amplification_factor=4.0)
-                data[noise].append(wav_data)
+                data[noise].append(os.path.join(noise_dir, file))
         return data
 
     def __len__(self):

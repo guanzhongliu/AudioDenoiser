@@ -38,7 +38,7 @@ class WavDataset(Dataset):
         return stft
     
     def __getitem__(self, index):
-        sample, sample_rate = self.samples[index]
+        sample, sample_rate = self.read_wav(self.samples[index])
 
         return self.random_sample_from_wav(sample, sample_rate)
     

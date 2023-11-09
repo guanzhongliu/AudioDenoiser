@@ -16,7 +16,6 @@ class GuitarSetDataset(SourceDataset):
         for f in tqdm(os.listdir(self.root_dir), desc='Reading From GuitarSet'):
             if not f.endswith('.wav'):
                 continue
-            wav_data = self.read_wav(os.path.join(self.root_dir, f), amplification_factor=1.0)
-            data.append(wav_data)
+            data.append(os.path.join(self.root_dir, f))
         return data
 
