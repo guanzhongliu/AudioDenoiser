@@ -12,10 +12,11 @@ import argparse
 import torch.multiprocessing as mp
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.distributed import init_process_group, destroy_process_group
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--epochs", type=int, default=120, help="number of epochs of training")
-parser.add_argument("--batch_size", type=int, default=4)
+parser.add_argument("--batch_size", type=int, default=2)
 parser.add_argument("--log_interval", type=int, default=500)
 parser.add_argument("--decay_epoch", type=int, default=30, help="epoch from which to start lr decay")
 parser.add_argument("--init_lr", type=float, default=5e-4, help="initial learning rate")
@@ -27,6 +28,8 @@ parser.add_argument("--save_model_dir", type=str, default='./saved_model',
                     help="dir of saved model")
 parser.add_argument("--loss_weights", type=list, default=[0.1, 0.9, 0.2, 0.05],
                     help="weights of RI components, magnitude, time loss, and Metric Disc")
+parser.add_argument("--accumulation_steps", type=int, default=16,
+                    help="gradient accumulation steps")
 args = parser.parse_args()
 logging.basicConfig(level=logging.INFO)
 
@@ -43,7 +46,7 @@ def ddp_setup(rank, world_size):
 
 
 class Trainer:
-    def __init__(self, train_ds, test_ds, gpu_id: int):
+    def __init__(self, train_ds, test_ds, gpu_id: int, accum_steps: int):
         self.n_fft = 400
         self.hop = 100
         self.train_ds = train_ds
@@ -68,6 +71,7 @@ class Trainer:
         self.model = DDP(self.model, device_ids=[gpu_id])
         self.discriminator = DDP(self.discriminator, device_ids=[gpu_id])
         self.gpu_id = gpu_id
+        self.accum_steps = accum_steps
 
     def forward_generator_step(self, clean, noisy):
 
@@ -187,7 +191,7 @@ class Trainer:
         generator_outputs["one_labels"] = one_labels
         generator_outputs["clean"] = clean
 
-        loss = self.calculate_generator_loss(generator_outputs)
+        loss = self.calculate_generator_loss(generator_outputs) / self.accum_steps
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
@@ -197,12 +201,13 @@ class Trainer:
 
         if discrim_loss_metric is not None:
             self.optimizer_disc.zero_grad()
-            discrim_loss_metric.backward()
+            disc_loss = discrim_loss_metric / self.accum_steps
+            disc_loss.backward()
             self.optimizer_disc.step()
         else:
-            discrim_loss_metric = torch.tensor([0.0])
+            disc_loss = torch.tensor([0.0])
 
-        return loss.item(), discrim_loss_metric.item()
+        return loss.item(), disc_loss.item()
 
     @torch.no_grad()
     def test_step(self, batch):
@@ -254,7 +259,7 @@ class Trainer:
         for epoch in range(args.epochs):
             self.model.train()
             self.discriminator.train()
-            for idx, batch in enumerate(self.train_ds):
+            for idx, batch in tqdm(enumerate(self.train_ds), total=len(self.train_ds), desc='Epoch: ' + str(epoch)):
                 step = idx + 1
                 loss, disc_loss = self.train_step(batch)
                 template = "GPU: {}, Epoch {}, Step {}, loss: {}, disc_loss: {}"
@@ -271,8 +276,10 @@ class Trainer:
                 os.makedirs(args.save_model_dir)
             if self.gpu_id == 0:
                 torch.save(self.model.module.state_dict(), path)
-            scheduler_G.step()
-            scheduler_D.step()
+            # accumulate gradient
+            if (epoch + 1) % self.accum_steps == 0:
+                scheduler_G.step()
+                scheduler_D.step()
 
 
 def main(rank: int, world_size: int, args):
@@ -286,7 +293,7 @@ def main(rank: int, world_size: int, args):
     train_ds, test_ds = dataloader.load_data(
         args.data_dir, args.batch_size, 2, args.cut_len
     )
-    trainer = Trainer(train_ds, test_ds, rank)
+    trainer = Trainer(train_ds, test_ds, rank, args.accumulation_steps)
     trainer.train()
     destroy_process_group()
 
