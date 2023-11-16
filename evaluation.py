@@ -15,7 +15,7 @@ def enhance_one_track(
 ):
     name = os.path.split(audio_path)[-1]
     noisy, sr = torchaudio.load(audio_path)
-    assert sr == 16000
+    assert sr == 16000 "sr is not 16000, sr: {}".format(sr)
     noisy = noisy.cuda()
 
     c = torch.sqrt(noisy.size(-1) / torch.sum((noisy**2.0), dim=-1))
@@ -50,7 +50,7 @@ def enhance_one_track(
     )
     est_audio = est_audio / c
     est_audio = torch.flatten(est_audio)[:length].cpu().numpy()
-    assert len(est_audio) == length
+    assert len(est_audio) == length "est_len: {}, length: {}".format(len(est_audio), length)
     if save_tracks:
         saved_path = os.path.join(saved_dir, name)
         sf.write(saved_path, est_audio, sr)
@@ -78,7 +78,7 @@ def evaluation(model_path, noisy_dir, clean_dir, save_tracks, saved_dir):
             model, noisy_path, saved_dir, 16000 * 16, n_fft, n_fft // 4, save_tracks
         )
         clean_audio, sr = sf.read(clean_path)
-        assert sr == 16000
+        assert sr == 16000 "sr is not 16000, sr: {}".format(sr)
         metrics = compute_metrics(clean_audio, est_audio, sr, 0)
         metrics = np.array(metrics)
         metrics_total += metrics
