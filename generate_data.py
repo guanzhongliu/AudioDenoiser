@@ -2,6 +2,7 @@ from dataset import *
 import os
 from tqdm import tqdm
 import argparse
+import librosa
 
 def create_dataset():
     # logger.info current path
@@ -33,8 +34,11 @@ def generate_samples(dir_path, num, dataset):
         os.makedirs(noisy_dir, exist_ok=True)
     for i in tqdm(range(num), desc="Generating samples in " + dir_path):
         (sample, sample_rate), (noise_sample, noise_sample_rate) = dataset.get_random_sample()
-        dataset.write_wav(os.path.join(clean_dir, f'sample_{i}.wav'), sample, sample_rate)
-        dataset.write_wav(os.path.join(noisy_dir, f'sample_{i}.wav'), dataset.mix_samples(sample, sample_rate, noise_sample, noise_sample_rate), sample_rate)
+        # resample to 16k
+        sample = librosa.resample(sample, sample_rate, 16000)
+        noise_sample = librosa.resample(noise_sample, noise_sample_rate, 16000)
+        dataset.write_wav(os.path.join(clean_dir, f'sample_{i}.wav'), sample, 16000)
+        dataset.write_wav(os.path.join(noisy_dir, f'sample_{i}.wav'), dataset.mix_samples(sample, 16000, noise_sample * 5, 16000), 16000)
 
 
 
