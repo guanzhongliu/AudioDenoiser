@@ -2,7 +2,7 @@ import numpy as np
 from models import generator
 from natsort import natsorted
 import os
-from tools.compute_metrics import compute_metrics
+from tools.compute_metrics_denoise import compute_metrics
 from utils import *
 import torchaudio
 import soundfile as sf
@@ -83,19 +83,12 @@ def evaluation(model_path, noisy_dir, clean_dir, save_tracks, saved_dir):
         metrics_total += metrics
 
     metrics_avg = metrics_total / num
+
+    # wss_dist, llr_mean, snr_mean, segSNR
     print(
-        "pesq: ",
-        metrics_avg[0],
-        "csig: ",
-        metrics_avg[1],
-        "cbak: ",
-        metrics_avg[2],
-        "covl: ",
-        metrics_avg[3],
-        "ssnr: ",
-        metrics_avg[4],
-        "stoi: ",
-        metrics_avg[5],
+        "wss_dist: {:.4f}, llr_mean: {:.4f}, snr_mean: {:.4f}, segSNR: {:.4f}".format(
+            metrics_avg[0], metrics_avg[1], metrics_avg[2], metrics_avg[3]
+        )
     )
 
 
