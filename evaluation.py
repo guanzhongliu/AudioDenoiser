@@ -70,7 +70,7 @@ def evaluation(model_path, noisy_dir, clean_dir, save_tracks, saved_dir):
     audio_list = os.listdir(noisy_dir)
     audio_list = natsorted(audio_list)
     num = len(audio_list)
-    metrics_total = np.zeros(6)
+    metrics_total = np.zeros(4)
     for audio in tqdm(audio_list, desc="Denoising dir: " + noisy_dir):
         noisy_path = os.path.join(noisy_dir, audio)
         clean_path = os.path.join(clean_dir, audio)
